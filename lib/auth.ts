@@ -21,8 +21,8 @@ const challenges = authGlobal.__todoChallenges ?? new Map<string, StoredChalleng
 authGlobal.__todoChallenges = challenges;
 
 function getSecret(): Uint8Array {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret) throw new Error('SESSION_SECRET is not configured');
+  const secret = process.env.JWT_SECRET ?? process.env.SESSION_SECRET;
+  if (!secret) throw new Error('JWT_SECRET or SESSION_SECRET is not configured');
   return new TextEncoder().encode(secret);
 }
 

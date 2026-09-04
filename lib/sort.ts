@@ -5,7 +5,8 @@
  * and the tests — a single definition keeps orderings from drifting apart.
  */
 
-import { PRIORITY_ORDER, type Todo } from './db';
+import { PRIORITY_ORDER } from './todo-constants';
+import type { Todo } from './db';
 import { getSingaporeNow, parseSingaporeDateTime } from './timezone';
 
 export interface TodoSections {

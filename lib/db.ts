@@ -9,28 +9,18 @@
 
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import {
+  PRIORITIES,
+  PRIORITY_ORDER,
+  RECURRENCE_PATTERNS,
+  REMINDER_OPTIONS,
+  type Priority,
+  type RecurrencePattern,
+  type ReminderMinutes,
+} from './todo-constants';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-export type Priority = 'high' | 'medium' | 'low';
-export type RecurrencePattern = 'daily' | 'weekly' | 'monthly' | 'yearly';
-export type ReminderMinutes = 15 | 30 | 60 | 120 | 1440 | 2880 | 10080; // 15m,30m,1h,2h,1d,2d,1w
-
-export const PRIORITIES: readonly Priority[] = ['high', 'medium', 'low'] as const;
-export const RECURRENCE_PATTERNS: readonly RecurrencePattern[] = [
-  'daily',
-  'weekly',
-  'monthly',
-  'yearly',
-] as const;
-export const REMINDER_OPTIONS: readonly ReminderMinutes[] = [
-  15, 30, 60, 120, 1440, 2880, 10080,
-] as const;
-
-/** Sort weight for priority ordering: high first, low last. */
-export const PRIORITY_ORDER: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+export { PRIORITIES, PRIORITY_ORDER, RECURRENCE_PATTERNS, REMINDER_OPTIONS };
+export type { Priority, RecurrencePattern, ReminderMinutes };
 
 export const DEFAULT_TAG_COLOR = '#3B82F6';
 

@@ -10,8 +10,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Priority, Todo } from '@/lib/db';
-import { PRIORITIES } from '@/lib/db';
+import { PRIORITIES, type Priority } from '@/lib/todo-constants';
+import type { Todo } from '@/lib/db';
 import { sectionTodos } from '@/lib/sort';
 import {
   describeDueDate,
