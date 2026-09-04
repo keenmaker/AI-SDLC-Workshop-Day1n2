@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^npx playwright test --reporter=line$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

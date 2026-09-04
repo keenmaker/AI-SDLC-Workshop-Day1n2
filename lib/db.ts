@@ -100,6 +100,21 @@ export interface Holiday {
   name: string;
 }
 
+export interface Event {
+  id: number;
+  user_id: number;
+  event_type: string;
+  resource_type: string | null;
+  resource_id: number | null;
+  metadata: string | null;
+  created_at: string;
+}
+
+/** Shape stored inside `events.metadata`. */
+export interface EventMetadata {
+  [key: string]: string | number | boolean | null;
+}
+
 /** Shape stored inside `templates.subtasks_json`. */
 export interface TemplateSubtask {
   title: string;
@@ -254,6 +269,19 @@ CREATE TABLE IF NOT EXISTS holidays (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_holidays_date ON holidays(date);
+
+CREATE TABLE IF NOT EXISTS events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  event_type TEXT NOT NULL,
+  resource_type TEXT,
+  resource_id INTEGER,
+  metadata TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
+CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type);
+CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
 `;
 
 function createConnection(): Database.Database {
@@ -874,6 +902,66 @@ export const holidayDB = {
       `INSERT INTO holidays (date, name) VALUES (?, ?)
        ON CONFLICT(date) DO UPDATE SET name = excluded.name`,
     ).run(date, name);
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Analytics Events
+// ---------------------------------------------------------------------------
+
+export const eventDB = {
+  log(userId: number, eventType: string, resourceType?: string | null, resourceId?: number | null, metadata?: Record<string, string | number | boolean | null> | null): Event {
+    const result = db.prepare(
+      `INSERT INTO events (user_id, event_type, resource_type, resource_id, metadata)
+       VALUES (?, ?, ?, ?, ?)`,
+    ).run(
+      userId,
+      eventType,
+      resourceType ?? null,
+      resourceId ?? null,
+      metadata ? JSON.stringify(metadata) : null,
+    );
+
+    const event = db.prepare('SELECT * FROM events WHERE id = ?').get(result.lastInsertRowid) as Event;
+    return event;
+  },
+
+  getStats(userId: number, since?: string): { eventType: string; count: number }[] {
+    const query = since
+      ? `SELECT event_type, COUNT(*) as count FROM events
+         WHERE user_id = ? AND created_at >= ?
+         GROUP BY event_type ORDER BY count DESC`
+      : `SELECT event_type, COUNT(*) as count FROM events
+         WHERE user_id = ?
+         GROUP BY event_type ORDER BY count DESC`;
+
+    const params = since ? [userId, since] : [userId];
+    return db.prepare(query).all(...params) as { eventType: string; count: number }[];
+  },
+
+  getActivity(userId: number, limit: number = 50): Event[] {
+    return db.prepare(
+      `SELECT * FROM events WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`,
+    ).all(userId, limit) as Event[];
+  },
+
+  getSummary(userId: number): { totalEvents: number; today: number; thisWeek: number; thisMonth: number } {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const total = db.prepare('SELECT COUNT(*) as count FROM events WHERE user_id = ?').get(userId) as { count: number };
+    const todayCount = db.prepare('SELECT COUNT(*) as count FROM events WHERE user_id = ? AND DATE(created_at) = DATE(?)').get(userId, today) as { count: number };
+    const weekCount = db.prepare('SELECT COUNT(*) as count FROM events WHERE user_id = ? AND created_at >= ?').get(userId, weekAgo) as { count: number };
+    const monthCount = db.prepare('SELECT COUNT(*) as count FROM events WHERE user_id = ? AND created_at >= ?').get(userId, monthAgo) as { count: number };
+
+    return {
+      totalEvents: total.count,
+      today: todayCount.count,
+      thisWeek: weekCount.count,
+      thisMonth: monthCount.count,
+    };
   },
 };
 

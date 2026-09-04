@@ -20,6 +20,7 @@ import {
   getSingaporeNow,
   parseSingaporeDateTime,
 } from '@/lib/timezone';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 const PRIORITY_LABEL: Record<Priority, string> = {
   high: 'High',
@@ -83,6 +84,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { logEvent } = useAnalytics();
 
   const loadTodos = useCallback(async () => {
     try {
@@ -137,6 +139,12 @@ export default function HomePage() {
       setTodos((current) => [...current, data.todo as Todo]);
       setForm(EMPTY_FORM);
       setError(null);
+      
+      // Log analytics event
+      void logEvent('todo_created', 'todo', data.todo.id, {
+        priority: data.todo.priority,
+        hasDueDate: data.todo.due_date ? true : false,
+      });
     } catch {
       setError('Could not create todo');
     } finally {
@@ -166,6 +174,14 @@ export default function HomePage() {
 
       if (!response.ok) throw new Error('Update failed');
 
+      // Log analytics event
+      if (!todo.completed) {
+        void logEvent('todo_completed', 'todo', todo.id, {
+          priority: todo.priority,
+          isRecurring: todo.is_recurring,
+        });
+      }
+
       // Recurring completion spawns a new instance server-side, so resync.
       if (todo.is_recurring) await loadTodos();
     } catch {
@@ -177,11 +193,15 @@ export default function HomePage() {
   /** Optimistic delete; no confirmation dialog by design. */
   async function handleDelete(todoId: number) {
     const previous = todos;
+    const deletedTodo = todos.find((t) => t.id === todoId);
     setTodos((current) => current.filter((item) => item.id !== todoId));
 
     try {
       const response = await fetch(`/api/todos/${todoId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Delete failed');
+      
+      // Log analytics event
+      void logEvent('todo_deleted', 'todo', todoId);
     } catch {
       setTodos(previous);
       setError('Could not delete todo');
