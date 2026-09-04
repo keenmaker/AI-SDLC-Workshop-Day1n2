@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Priority, Todo } from '@/lib/db';
 import { PRIORITIES } from '@/lib/db';
-import { sectionTodos } from '@/lib/todo-sort';
+import { sectionTodos } from '@/lib/sort';
 import {
   describeDueDate,
   formatSingaporeDisplay,

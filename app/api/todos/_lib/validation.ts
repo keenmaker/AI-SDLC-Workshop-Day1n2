@@ -1,5 +1,5 @@
 /**
- * Request validation shared by the todo routes.
+ * Request validation for the todo routes.
  *
  * Returns plain result objects rather than throwing, so handlers can map
  * failures onto 400 responses without try/catch noise.
@@ -11,8 +11,13 @@ import {
   REMINDER_OPTIONS,
   type Priority,
   type RecurrencePattern,
-} from './db';
-import { getSingaporeNow, isFutureDueDate, isValidDateTime, toStorageDateTime } from './timezone';
+} from '@/lib/db';
+import {
+  getSingaporeNow,
+  isFutureDueDate,
+  isValidDateTime,
+  toStorageDateTime,
+} from '@/lib/timezone';
 
 export type ValidationResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -142,10 +147,7 @@ export function validateTodoPayload(
     const raw = body.recurrence_pattern;
     if (raw === null || raw === '') {
       pattern = null;
-    } else if (
-      typeof raw === 'string' &&
-      RECURRENCE_PATTERNS.includes(raw as RecurrencePattern)
-    ) {
+    } else if (typeof raw === 'string' && RECURRENCE_PATTERNS.includes(raw as RecurrencePattern)) {
       pattern = raw as RecurrencePattern;
     } else {
       return {
@@ -178,9 +180,7 @@ export function validateTodoPayload(
     return { ok: false, error: 'Reminders require a due date' };
   }
 
-  const completed = has('completed')
-    ? Boolean(body.completed)
-    : (existing?.completed ?? false);
+  const completed = has('completed') ? Boolean(body.completed) : (existing?.completed ?? false);
 
   return {
     ok: true,

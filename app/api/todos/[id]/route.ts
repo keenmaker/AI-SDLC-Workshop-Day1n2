@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { getSession } from '../_lib/session';
 import { todoDB } from '@/lib/db';
-import { parseId, validateTodoPayload, type TodoPayload } from '@/lib/validation';
+import { parseId, validateTodoPayload, type TodoPayload } from '../_lib/validation';
 
 type RouteContext = { params: Promise<{ id: string }> };
 

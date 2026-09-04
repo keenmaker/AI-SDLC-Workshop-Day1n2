@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { getSession } from './_lib/session';
 import { todoDB } from '@/lib/db';
-import { sectionTodos, sortTodos } from '@/lib/todo-sort';
-import { validateTodoPayload } from '@/lib/validation';
+import { sectionTodos, sortTodos } from '@/lib/sort';
+import { validateTodoPayload } from './_lib/validation';
 
 /** GET /api/todos — all todos for the session user, sorted and sectioned. */
 export async function GET() {

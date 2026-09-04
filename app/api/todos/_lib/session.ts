@@ -1,17 +1,16 @@
 /**
- * Session management.
+ * Session reading for the todo routes.
  *
- * Sessions are stateless JWTs stored in an HTTP-only cookie with a 7-day
- * expiry. Nothing is persisted server-side, so logout works by clearing the
- * cookie.
+ * Kept inside the route folder so nothing outside `app/api/todos/**` is
+ * required. The `_lib` prefix marks this as a private folder, so Next.js does
+ * not treat it as a route segment.
  *
- * Step 3 (WebAuthn) builds on this contract: once a passkey is verified, the
- * route calls `createSession()` with the resolved user.
+ * Sessions are stateless JWTs in an HTTP-only cookie with a 7-day expiry.
  */
 
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
-import type { Session } from './db';
+import type { Session } from '@/lib/db';
 
 export const SESSION_COOKIE = 'todo_session';
 
