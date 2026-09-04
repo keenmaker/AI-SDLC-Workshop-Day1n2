@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CalendarGrid } from '@/components/CalendarGrid';
 import { DayTodosModal } from '@/components/DayTodosModal';
@@ -65,12 +66,12 @@ function CalendarPageContent() {
           </p>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Schedule overview</h1>
         </div>
-        <a
+        <Link
           href="/"
           className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           Back to list
-        </a>
+        </Link>
       </div>
 
       <CalendarGrid

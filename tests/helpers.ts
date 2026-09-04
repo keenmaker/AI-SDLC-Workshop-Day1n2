@@ -161,7 +161,7 @@ export class TodoAppHelper {
 
     const text = await percentText.textContent();
     const match = text?.match(/(\d+)%/);
-    return match ? parseInt(match[1], 10) : null;
+    return match?.[1] ? parseInt(match[1], 10) : null;
   }
 
   /**
@@ -177,7 +177,9 @@ export class TodoAppHelper {
 
     const text = await countText.textContent();
     const match = text?.match(/(\d+)\/(\d+) subtasks/);
-    return match ? { completed: parseInt(match[1], 10), total: parseInt(match[2], 10) } : null;
+    return match?.[1] && match[2]
+      ? { completed: parseInt(match[1], 10), total: parseInt(match[2], 10) }
+      : null;
   }
 
   /**
@@ -356,6 +358,7 @@ export class TodoAppHelper {
   async isTagVisible(tagName: string): Promise<boolean> {
     return this.page.locator(`button:has-text("${tagName}")`).isVisible();
   }
+}
 
 /**
  * Export a helper function for easier test setup.

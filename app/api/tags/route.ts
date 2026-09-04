@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    let { name, color } = body;
+    let { name } = body;
+    const { color } = body;
 
     // Validate and trim name
     if (!name || typeof name !== 'string') {

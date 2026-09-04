@@ -1,10 +1,10 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { getSession } from './_lib/session';
+﻿import { NextResponse, type NextRequest } from 'next/server';
+import { getSession } from '@/lib/auth';
 import { todoDB } from '@/lib/db';
 import { sectionTodos, sortTodos } from '@/lib/sort';
 import { validateTodoPayload } from './_lib/validation';
 
-/** GET /api/todos — all todos for the session user, sorted and sectioned. */
+/** GET /api/todos â€” all todos for the session user, sorted and sectioned. */
 export async function GET() {
   const session = await getSession();
   if (!session) {
@@ -19,7 +19,7 @@ export async function GET() {
   });
 }
 
-/** POST /api/todos — create a todo. */
+/** POST /api/todos â€” create a todo. */
 export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session) {
