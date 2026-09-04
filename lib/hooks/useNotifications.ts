@@ -44,11 +44,7 @@ export function useNotifications() {
             tag: `todo-${todo.id}`,
           });
 
-          await fetch(`/api/todos/${todo.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ last_notification_sent: getSingaporeNow().toISOString() }),
-          });
+          await fetch(`/api/notifications/${todo.id}/sent`, { method: 'POST' });
         }
       } catch {
         // Network hiccups are silently retried on the next poll tick.

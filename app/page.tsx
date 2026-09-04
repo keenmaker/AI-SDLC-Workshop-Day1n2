@@ -154,11 +154,15 @@ export default function HomePage() {
     );
 
     try {
-      const response = await fetch(`/api/todos/${todo.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: !todo.completed }),
-      });
+      // Completing goes through /complete, which is the only path that spawns
+      // the next occurrence of a recurring todo. PUT only flips the flag.
+      const response = todo.completed
+        ? await fetch(`/api/todos/${todo.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completed: false }),
+          })
+        : await fetch(`/api/todos/${todo.id}/complete`, { method: 'POST' });
 
       if (!response.ok) throw new Error('Update failed');
 

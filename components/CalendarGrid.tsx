@@ -2,6 +2,7 @@
 
 import type { Holiday, Todo } from '@/lib/db';
 import { formatMonthQuery, generateCalendarGrid } from '@/lib/calendar';
+import { formatSingaporeDate, getSingaporeNow } from '@/lib/timezone';
 
 const DAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MAX_VISIBLE_TODOS = 3;
@@ -83,8 +84,10 @@ export function CalendarGrid({ year, month, todos, holidays, onSelectDay, onNavi
         <button
           type="button"
           onClick={() => {
-            const today = new Date();
-            onNavigate(today.getFullYear(), today.getMonth() + 1);
+            // Must be Singapore "today", not the host clock, or this jumps to
+            // the wrong month for users west of UTC+08:00.
+            const today = formatSingaporeDate(getSingaporeNow());
+            onNavigate(Number(today.slice(0, 4)), Number(today.slice(5, 7)));
           }}
           className="rounded-md border border-sky-300 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 hover:bg-sky-100 dark:border-sky-600 dark:bg-sky-500/10 dark:text-sky-200 dark:hover:bg-sky-500/20"
         >

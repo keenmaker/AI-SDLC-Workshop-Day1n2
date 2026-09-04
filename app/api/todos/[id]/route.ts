@@ -1,4 +1,4 @@
-﻿import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { todoDB } from '@/lib/db';
 import { parseId, validateTodoPayload, type TodoPayload } from '../_lib/validation';
@@ -27,13 +27,13 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
 }
 
 /**
- * PUT /api/todos/[id] â€” update a todo.
+ * PUT /api/todos/[id] — update a todo.
  *
  * Accepts partial payloads; omitted fields keep their current values.
  *
- * Note: completing a recurring todo must also spawn the next instance. That
- * belongs to feature 03 and is added in step 5; this handler currently updates
- * the todo only.
+ * Note: this handler updates fields only. Completing a recurring todo must
+ * also spawn the next instance, so clients complete via
+ * POST /api/todos/[id]/complete; use PUT only to re-open a completed todo.
  */
 export async function PUT(request: NextRequest, { params }: RouteContext) {
   const session = await getSession();
@@ -82,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
   return NextResponse.json({ todo });
 }
 
-/** DELETE /api/todos/[id] â€” immediate, cascades to subtasks and tags. */
+/** DELETE /api/todos/[id] — immediate, cascades to subtasks and tags. */
 export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await getSession();
   if (!session) {
